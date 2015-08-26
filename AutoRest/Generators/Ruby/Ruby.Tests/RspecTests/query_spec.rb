@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-$: << 'RspecTests/url_query'
+$: << 'Generated/url_query'
 
 require 'rspec'
 require 'url'
@@ -89,46 +89,33 @@ describe Queries do
   end
 
   it 'should get byte multi byte' do
-    pending('proper working with unicode isnt implemented yet')
-    fail
-    # result = @queries_client.byte_multi_byte("啊齄丂狛狜隣郎隣兀﨩".bytes).value!
-    # expect(result.response.status).to eq(200)
-    # expect(result.response.body).to eq("MultiByte")
+    result = @queries_client.byte_multi_byte('啊齄丂狛狜隣郎隣兀﨩'.bytes).value!
+    expect(result.response.status).to eq(200)
   end
 
   it 'should get byte empty' do
-    pending('proper working with unicode isnt implemented yet')
-    fail
-    # result = @queries_client.byte_empty([]).value!
-    # expect(result.response.status).to eq(200)
+    result = @queries_client.byte_empty([]).value!
+    expect(result.response.status).to eq(200)
   end
 
   it 'should get byte null' do
-    pending('proper working with unicode isnt implemented yet')
-    fail
-    # result = @queries_client.byte_null().value!
-    # expect(result.response.status).to eq(200)
+    result = @queries_client.byte_null().value!
+    expect(result.response.status).to eq(200)
   end
 
   it 'should get date valid' do
-    pending('proper working with datetime isnt implemented yet')
-    fail
-    # result = @queries_client.date_valid(Date.new(2012, 1, 1)).value!
-    # expect(result.response.status).to eq(200)
+    result = @queries_client.date_valid(Date.new(2012, 1, 1)).value!
+    expect(result.response.status).to eq(200)
   end
 
   it 'should get date null' do
-    pending('proper working with datetime isnt implemented yet')
-    fail
-    # result = @queries_client.date_null().value!
-    # expect(result.response.status).to eq(200)
+    result = @queries_client.date_null().value!
+    expect(result.response.status).to eq(200)
   end
 
   it 'should get dateTime valid' do
-    pending('proper working with datetime isnt implemented yet')
-    fail
-    # result = @queries_client.date_time_valid(DateTime.new(2012, 1, 1, 1, 1, 1, 'Z')).value!
-    # expect(result.response.status).to eq(200)
+    result = @queries_client.date_time_valid(DateTime.new(2012, 1, 1, 1, 1, 1, 'Z')).value!
+    expect(result.response.status).to eq(200)
   end
 
   it 'should get dateTime null' do

@@ -53,7 +53,6 @@ module ArrayModule
     end
 
     it 'should create test service' do
-      # expect(1).to eq(2)
       expect { AutoRestSwaggerBATArrayService.new(@credentials, @base_url) }.not_to raise_error
     end
 

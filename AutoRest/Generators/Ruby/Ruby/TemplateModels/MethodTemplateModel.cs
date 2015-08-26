@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -276,6 +277,21 @@ namespace Microsoft.Rest.Generator.Ruby
         }
 
         /// <summary>
+        /// Gets the plain name of the parameter (removed prefix @client of self) adds serialized suffix.
+        /// </summary>
+        /// <param name="name">The parameter name.</param>
+        /// <returns>The new variable name.</returns>
+        public static string GetPlainParameterName(string name)
+        {
+            if (name.StartsWith("@client") || name.StartsWith("self"))
+            {
+                name = String.Join(string.Empty, name.Split('.').Skip(1).ToArray());
+            }
+
+            return name + "_serialized";
+        }
+
+        /// <summary>
         /// Generate code to build the URL from a url expression and method parameters.
         /// </summary>
         /// <param name="inputVariableName">The variable to prepare url from.</param>
@@ -305,8 +321,15 @@ namespace Microsoft.Rest.Generator.Ruby
 
             if (queryParametres.Any())
             {
+                foreach (var queryParam in queryParametres)
+                {
+                    builder.AppendLine("{0} = {1}", GetPlainParameterName(queryParam.Name), queryParam.Name);
+                    var serializationCode = queryParam.Type.SerializeType(this.Scope, GetPlainParameterName(queryParam.Name), this.ClassNamespaces);
+                    builder.AppendLine(serializationCode);
+                }
+
                 builder.AppendLine("properties = {{ {0} }}",
-                    string.Join(", ", queryParametres.Select(x => string.Format("'{0}' => {1}", x.SerializedName, x.Name))));
+                    string.Join(", ", queryParametres.Select(x => string.Format("'{0}' => {1}", x.SerializedName, GetPlainParameterName(x.Name)))));
 
                 builder.AppendLine(SaveExistingUrlItems("properties", outputVariableName));
 
