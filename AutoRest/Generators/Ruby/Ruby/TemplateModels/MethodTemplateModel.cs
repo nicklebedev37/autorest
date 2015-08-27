@@ -277,6 +277,28 @@ namespace Microsoft.Rest.Generator.Ruby
         }
 
         /// <summary>
+        /// Sets the given header into collection which will be passed into Faraday, also performs its serialization.
+        /// </summary>
+        /// <param name="headerCollectionName">The header collection variable.</param>
+        /// <param name="param">The header parameter.</param>
+        /// <returns>The header setting code.</returns>
+        public virtual string SetHeader(string headerCollectionName, Parameter param)
+        {
+            var builder = new IndentedStringBuilder("  ");
+
+            builder.AppendLine("{0} = {1}", GetPlainParameterName(param.Name), param.Name);
+            var serializationCode = param.Type.SerializeType(this.Scope, GetPlainParameterName(param.Name), this.ClassNamespaces);
+
+            builder
+                .AppendLine(serializationCode)
+                .AppendLine("{0} = {0}.to_s unless ({0}.nil? || {0}.is_a?(String))", GetPlainParameterName(param.Name))
+                .AppendLine("{0}['{1}'] = {2} unless {2}.nil?", headerCollectionName, param.SerializedName,
+                    GetPlainParameterName(param.Name));
+
+            return builder.ToString();
+        }
+
+        /// <summary>
         /// Gets the plain name of the parameter (removed prefix @client of self) adds serialized suffix.
         /// </summary>
         /// <param name="name">The parameter name.</param>

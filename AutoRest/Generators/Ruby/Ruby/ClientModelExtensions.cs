@@ -146,36 +146,6 @@ namespace Microsoft.Rest.Generator.Ruby.TemplateModels
         }
 
         /// <summary>
-        /// Format the value of a sequence given the modeled element format. Note that only sequences of strings are supported.
-        /// </summary>
-        /// <param name="parameter">The parameter to format.</param>
-        /// <returns>A reference to the formatted parameter value.</returns>
-        public static string GetFormattedReferenceValue(this Parameter parameter)
-        {
-            SequenceType sequence = parameter.Type as SequenceType;
-            if (sequence == null)
-            {
-                return parameter.Type.ToString(parameter.Name);
-            }
-
-            PrimaryType primaryType = sequence.ElementType as PrimaryType;
-            EnumType enumType = sequence.ElementType as EnumType;
-            if (enumType != null && enumType.IsExpandable)
-            {
-                primaryType = PrimaryType.String;
-            }
-
-            if (primaryType != PrimaryType.String)
-            {
-                throw new InvalidOperationException(
-                    string.Format("Cannot generate a formatted sequence from a " +
-                                  "non-string array parameter {0}", parameter));
-            }
-
-            return string.Format("{0}.join('{1}')", parameter.Name, parameter.CollectionFormat.GetSeparator());
-        }
-
-        /// <summary>
         /// Generates Yard-compatible representation of given type.
         /// </summary>
         /// <param name="type">The type doc needs to be generated for.</param>
@@ -433,8 +403,6 @@ namespace Microsoft.Rest.Generator.Ruby.TemplateModels
                 {
                     return
                         builder
-                            .AppendLine("unless {0}.nil?", valueReference)
-                            .Indent()
                             .AppendLine("serialized{0} = []", sequence.Name)
                             .AppendLine("{0}.each do |{1}|", valueReference, elementVar)
                             .Indent()
@@ -443,8 +411,6 @@ namespace Microsoft.Rest.Generator.Ruby.TemplateModels
                             .Outdent()
                             .AppendLine("end")
                             .AppendLine("{0} = serialized{1}", valueReference, sequence.Name.ToPascalCase())
-                            .Outdent()
-                            .AppendLine("end")
                             .Outdent()
                             .AppendLine("end")
                             .ToString();
@@ -457,12 +423,10 @@ namespace Microsoft.Rest.Generator.Ruby.TemplateModels
                 if (!string.IsNullOrEmpty(innerSerialization))
                 {
                     return builder
-                                .AppendLine("{0}.each {{ |key, {1}|", valueReference, valueVar)
+                                .AppendLine("{0}.each do |key, {1}|", valueReference, valueVar)
                                 .Indent()
                                 .AppendLine(innerSerialization)
                                 .AppendLine("{0}[key] = {1}", valueReference, valueVar)
-                                .Outdent()
-                                .AppendLine("}")
                                 .Outdent()
                                 .AppendLine("end")
                                 .Outdent()
@@ -501,11 +465,8 @@ namespace Microsoft.Rest.Generator.Ruby.TemplateModels
                         .ToString();
                 }
 
-                return builder.AppendLine("unless {0}.nil?", valueReference)
-                    .Indent()
-                        .AppendLine("{0} = {1}.serialize_object({0})", valueReference, composite.Name)
-                    .Outdent()
-                    .AppendLine("end")
+                return builder
+                    .AppendLine("{0} = {1}.serialize_object({0})", valueReference, composite.Name)
                     .Outdent()
                     .AppendLine("end")
                     .ToString();
